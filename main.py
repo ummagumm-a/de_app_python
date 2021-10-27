@@ -2,7 +2,6 @@ from numerical_method import *
 from diff_eq_solver import diff_eq_solver
 #%matplotlib inline
 import numpy as np
-from plotter import plotter
 
 import dash
 from dash import dcc
@@ -12,7 +11,6 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 import plotly.express as px
-import pandas as pd
 from math import e
 
 colors = ['green', 'orange', 'cornflowerblue']
@@ -24,8 +22,8 @@ num_meth_list = [
 
 def methods_figure(fig, row, col):
     fig.add_trace(go.Scatter(
-            x=des.xs,
-            y=des.exact,
+            x=des.get_xs(),
+            y=des.get_exact(),
             name="exact",
             marker=dict(color='black'),
             line_shape='linear'),
@@ -34,8 +32,8 @@ def methods_figure(fig, row, col):
     for i in range(0, len(num_meth_list)):
         des.set_num_method(num_meth_list[i])
         fig.add_trace(go.Scatter(
-                x=des.xs,
-                y=des.approximation,
+                x=des.get_xs(),
+                y=des.apply_method(),
                 name=str(num_meth_list[i]),
                 marker=dict(color=colors[i]),
                 line_shape='linear'),
@@ -48,8 +46,8 @@ def lte_figure(fig, row, col):
     for i in range(0, len(num_meth_list)):
         des.set_num_method(num_meth_list[i])
         fig.append_trace(go.Scatter(
-                x=des.xs,
-                y=des.lte,
+                x=des.get_xs(),
+                y=des.calc_lte(),
                 name=str(num_meth_list[i]),
                 marker=dict(color=colors[i]),
                 line_shape='linear',
@@ -64,9 +62,11 @@ def lte_figure(fig, row, col):
 def gte_figure(fig, row, col):
 
     for i in range(0, len(num_meth_list)):
+        des.set_num_method(num_meth_list[i])
+        ns, gte = des.calc_gte()
         fig.append_trace(go.Scatter(
-                x=des.data['is'], 
-                y=des.data['approximation'], 
+                x=ns,
+                y=gte,
                 name=str(num_meth_list[i]),
                 marker=dict(color=colors[i]),
                 line_shape='linear',
@@ -83,7 +83,7 @@ def construct_figures():
     fig = make_subplots(rows=3, cols=1)
     methods_figure(fig, 1, 1)
     lte_figure(fig, 2, 1)
-#    gte_figure(fig, 3, 1)
+    gte_figure(fig, 3, 1)
 
     return fig
 
