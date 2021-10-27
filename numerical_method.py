@@ -39,5 +39,3 @@ class runge_kutta_method(numerical_method):
         k4 = step_size * f_der(x_prev + step_size, y_prev + k3)
 
         return y_prev + (k1 + 2 * k2 + 2 * k3 + k4) / 6
-
-num_meth_list = [euler_method(), improved_euler_method(), runge_kutta_method()]

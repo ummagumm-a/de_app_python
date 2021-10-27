@@ -16,19 +16,26 @@ import pandas as pd
 from math import e
 
 colors = ['green', 'orange', 'cornflowerblue']
+num_meth_list = [
+    euler_method(), 
+    improved_euler_method(), 
+    runge_kutta_method()
+    ]
+
 def methods_figure(fig, row, col):
     fig.add_trace(go.Scatter(
-            x=des.data['xs'], 
-            y=des.data['exact'], 
+            x=des.xs,
+            y=des.exact,
             name="exact",
             marker=dict(color='black'),
             line_shape='linear'),
         row, col)
     
     for i in range(0, len(num_meth_list)):
+        des.set_num_method(num_meth_list[i])
         fig.add_trace(go.Scatter(
-                x=des.data['xs'], 
-                y=des.data[str(num_meth_list[i])], 
+                x=des.xs,
+                y=des.approximation,
                 name=str(num_meth_list[i]),
                 marker=dict(color=colors[i]),
                 line_shape='linear'),
@@ -39,9 +46,10 @@ def methods_figure(fig, row, col):
 
 def lte_figure(fig, row, col):
     for i in range(0, len(num_meth_list)):
+        des.set_num_method(num_meth_list[i])
         fig.append_trace(go.Scatter(
-                x=des.data['xs'], 
-                y=des.data[str(num_meth_list[i]) + '_lte'], 
+                x=des.xs,
+                y=des.lte,
                 name=str(num_meth_list[i]),
                 marker=dict(color=colors[i]),
                 line_shape='linear',
@@ -75,7 +83,7 @@ def construct_figures():
     fig = make_subplots(rows=3, cols=1)
     methods_figure(fig, 1, 1)
     lte_figure(fig, 2, 1)
-    gte_figure(fig, 3, 1)
+#    gte_figure(fig, 3, 1)
 
     return fig
 
@@ -85,6 +93,8 @@ des = diff_eq_solver(
     lambda x, y: (3 * y + 2 * x * y) / x ** 2,
     lambda x0, y0, x: y0 / (x0 ** 2 * e ** (-3 / x0)) * x ** 2 * e ** (-3 / x)
     )
+
+des.set_num_method(euler_method())
 
 fig = construct_figures()
 
