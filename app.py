@@ -27,7 +27,7 @@ class my_app:
         self.construct_layout(fig)
 
     def run(self):
-        self.app.run_server(debug=True)
+        self.app.run_server(debug=True, host='0.0.0.0')
 
     def construct_layout(self, fig):
         self.app.layout = html.Div(children=[

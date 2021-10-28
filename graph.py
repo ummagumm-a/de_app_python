@@ -93,7 +93,6 @@ class graph:
             rows=2, cols=2, 
             specs=[[{}, {"rowspan": 2}],
                 [{}, None]],
-            print_grid=True,
             subplot_titles=(
                 "Approximations vs. Exact Solution",
                 "GTE",
