@@ -1,10 +1,5 @@
 from numerical_method import * 
-import operator
 import numpy as np
-import matplotlib.pyplot as plt
-import math
-
-import functools
 
 class diff_eq_solver:
     def __init__(self, f_der, f):
@@ -12,7 +7,7 @@ class diff_eq_solver:
         self.f = f
         self.x0 = 1 
         self.y0 = 1
-        self.n0 = 9
+        self.n0 = 5
         self.n_intervals = 20
         self.x_max = 2
 
