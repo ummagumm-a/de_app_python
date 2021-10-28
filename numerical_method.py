@@ -13,7 +13,7 @@ class numerical_method(metaclass=abc.ABCMeta):
     
 class euler_method(numerical_method):
     def __str__(self):
-        return 'euler'
+        return 'Euler Method'
 
     def calculate(self, x_prev, y_prev, step_size, f_der):
         return y_prev + step_size * f_der(x_prev, y_prev)
@@ -21,7 +21,7 @@ class euler_method(numerical_method):
 
 class improved_euler_method(numerical_method):
     def __str__(self):
-        return 'impr_euler'
+        return 'Improved Euler Method'
 
     def calculate(self, x_prev, y_prev, step_size, f_der):
         k1 = step_size * f_der(x_prev, y_prev)
@@ -30,7 +30,7 @@ class improved_euler_method(numerical_method):
 
 class runge_kutta_method(numerical_method):
     def __str__(self):
-        return 'runge_kutta'
+        return 'Runge-Kutta Method'
 
     def calculate(self, x_prev, y_prev, step_size, f_der):
         k1 = step_size * f_der(x_prev, y_prev)

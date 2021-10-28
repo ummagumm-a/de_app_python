@@ -1,6 +1,5 @@
 from numerical_method import *
 from diff_eq_solver import diff_eq_solver
-#%matplotlib inline
 import numpy as np
 
 import dash
@@ -9,8 +8,8 @@ from dash import html
 from dash.dependencies import Input, Output, State
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-
 import plotly.express as px
+
 from math import e
 
 colors = ['green', 'orange', 'cornflowerblue']
@@ -21,46 +20,59 @@ num_meth_list = [
     ]
 
 def methods_figure(fig, row, col):
-    fig.add_trace(go.Scatter(
-            x=des.get_xs(),
-            y=des.get_exact(),
-            name="exact",
-            marker=dict(color='black'),
-            line_shape='linear'),
-        row, col)
-    
-    for i in range(0, len(num_meth_list)):
-        des.set_num_method(num_meth_list[i])
+    xs = des.get_xs()
+    exact = des.get_exact()
+    showlegend = True 
+    for (x, y) in zip(xs, exact):
         fig.add_trace(go.Scatter(
-                x=des.get_xs(),
-                y=des.apply_method(),
-                name=str(num_meth_list[i]),
-                marker=dict(color=colors[i]),
+                x=x,
+                y=y,
+                name="Exact Solution",
+                showlegend=showlegend,
+                marker=dict(color='black', opacity=0.0),
                 line_shape='linear'),
             row, col)
+        showlegend=False
 
-    fig.update_traces(hoverinfo='text+name', mode='lines+markers')
+    for i in range(0, len(num_meth_list)):
+        des.set_num_method(num_meth_list[i])
+        appr = des.get_approximation()
+        showlegend = True 
+        for (x, y) in zip(xs, appr):
+            fig.add_trace(go.Scatter(
+                    x=x,
+                    y=y,
+                    name=str(num_meth_list[i]),
+                    marker=dict(color=colors[i], opacity=0.0),
+                    showlegend=showlegend,
+                    line_shape='linear'),
+                row, col)
+            showlegend=False
+
+    fig.update_traces(showlegend=True,hoverinfo='text+name', mode='lines+markers')
     fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
 
 def lte_figure(fig, row, col):
+    xs = des.get_xs()
     for i in range(0, len(num_meth_list)):
         des.set_num_method(num_meth_list[i])
-        fig.append_trace(go.Scatter(
-                x=des.get_xs(),
-                y=des.calc_lte(),
-                name=str(num_meth_list[i]),
-                marker=dict(color=colors[i]),
-                line_shape='linear',
-                showlegend=False,
-                ),
-            row, col
-            )
+        lte = des.calc_lte()
+        for (x, y) in zip(xs, lte):
+            fig.add_trace(go.Scatter(
+                    x=x,
+                    y=y,
+                    name=str(num_meth_list[i]),
+                    marker=dict(color=colors[i], opacity=0.0),
+                    line_shape='linear',
+                    showlegend=False,
+                    ),
+                row, col
+                )
 
     fig.update_traces(hoverinfo='text+name', mode='lines+markers')
     fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
 
 def gte_figure(fig, row, col):
-
     for i in range(0, len(num_meth_list)):
         des.set_num_method(num_meth_list[i])
         ns, gte = des.calc_gte()
@@ -68,22 +80,32 @@ def gte_figure(fig, row, col):
                 x=ns,
                 y=gte,
                 name=str(num_meth_list[i]),
-                marker=dict(color=colors[i]),
+                marker=dict(color=colors[i], opacity=0.0),
                 line_shape='linear',
                 showlegend=False,
                 ),
             row, col
-            )
+        )
 
     fig.update_traces(hoverinfo='text+name', mode='lines+markers')
     fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
 
 
 def construct_figures():
-    fig = make_subplots(rows=3, cols=1)
+    fig = make_subplots(
+        rows=2, cols=2, 
+        specs=[[{}, {"rowspan": 2}],
+               [{}, None]],
+        print_grid=True,
+        subplot_titles=(
+            "Approximations vs. Exact Solution",
+            "GTE",
+            "LTE",
+            )
+        )
     methods_figure(fig, 1, 1)
     lte_figure(fig, 2, 1)
-    gte_figure(fig, 3, 1)
+    gte_figure(fig, 1, 2)
 
     return fig
 
@@ -95,7 +117,6 @@ des = diff_eq_solver(
     )
 
 des.set_num_method(euler_method())
-
 fig = construct_figures()
 
 app.layout = html.Div(children=[
@@ -110,6 +131,12 @@ app.layout = html.Div(children=[
     html.Br(),
     dcc.Input(id='initials', type='text', placeholder='x0 y0'),
     html.Button(id='submit-initials', n_clicks=0, children='Submit'),
+    html.Br(),
+
+    html.Label('N0:'),
+    html.Br(),
+    dcc.Input(id='n0', type='text', placeholder='N0'),
+    html.Button(id='submit-n0', n_clicks=0, children='Submit'),
     html.Br(),
 
     html.Label('N:'),
@@ -128,14 +155,16 @@ app.layout = html.Div(children=[
 @app.callback(
     Output('graph', 'figure'),
     Input('submit-initials', 'n_clicks'),
+    Input('submit-n0', 'n_clicks'),
     Input('submit-n_intervals', 'n_clicks'),
     Input('submit-x_max', 'n_clicks'),
     State('initials', 'value'),
+    State('n0', 'value'),
     State('n_intervals', 'value'),
     State('x_max', 'value'),
 )
-def accept_initials(n_clicks1, n_clicks2, n_clicks3, 
-        initials, n_intervals, x_max):
+def accept_initials(n_clicks1, n_clicks2, n_clicks3, n_clicks4,
+        initials, n0, n_intervals, x_max):
     ctx = dash.callback_context
     if not ctx.triggered:
         button_id = 'No clicks yet'
@@ -154,8 +183,16 @@ def accept_initials(n_clicks1, n_clicks2, n_clicks3,
             n = int(n_intervals)
         except ValueError:
             n = des.n_intervals
-
+            
         des.set_n_intervals(n)
+    elif button_id == 'submit-n0':
+        try:
+            n = int(n0)
+        except ValueError:
+            n = des.n0
+            
+        des.set_n0(n)
+
     elif button_id == 'submit-x_max':
         try:
             x_max = float(x_max)
