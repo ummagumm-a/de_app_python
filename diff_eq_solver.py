@@ -65,7 +65,7 @@ class diff_eq_solver:
         step_size = (self.x_max - self.x0) / n_intervals
 
         res = list(map(
-            lambda x: self.apply_method(
+            lambda x: self._apply_method(
                 xs=x, 
                 step_size=step_size
                 ),
@@ -74,7 +74,7 @@ class diff_eq_solver:
 
         return res
 
-    def apply_method(self, xs, step_size=None):
+    def _apply_method(self, xs, step_size=None):
         if step_size == None:
             step_size = (self.x_max - self.x0) / self.n_intervals
 
@@ -106,10 +106,6 @@ class diff_eq_solver:
         gte = np.zeros(self.n_intervals - self.n0 + 1)
 
         for i in range(self.n0, self.n_intervals + 1):
-            print('lte')
-            print(self.calc_lte(i))
-            print('xs')
-            print(self.get_xs(i))
             gte[i - self.n0] = max(map(
                 lambda x: np.amax(x, initial=0), 
                 self.calc_lte(i)))

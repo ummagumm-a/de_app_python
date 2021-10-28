@@ -16,7 +16,7 @@ class graph:
     def __init__(self, des):
         self.des = des
 
-    def methods_figure(self, fig, row, col):
+    def _methods_figure(self, fig, row, col):
         xs = self.des.get_xs()
         exact = self.des.get_exact()
         showlegend = True 
@@ -49,7 +49,7 @@ class graph:
         fig.update_traces(showlegend=True,hoverinfo='text+name', mode='lines+markers')
         fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
 
-    def lte_figure(self, fig, row, col):
+    def _lte_figure(self, fig, row, col):
         xs = self.des.get_xs()
         for i in range(0, len(num_meth_list)):
             self.des.set_num_method(num_meth_list[i])
@@ -69,7 +69,7 @@ class graph:
         fig.update_traces(hoverinfo='text+name', mode='lines+markers')
         fig.update_layout(legend=dict(y=0.5, traceorder='reversed', font_size=16))
 
-    def gte_figure(self, fig, row, col):
+    def _gte_figure(self, fig, row, col):
         for i in range(0, len(num_meth_list)):
             self.des.set_num_method(num_meth_list[i])
             ns, gte = self.des.calc_gte()
@@ -100,8 +100,8 @@ class graph:
                 "LTE",
                 )
             )
-        self.methods_figure(fig, 1, 1)
-        self.lte_figure(fig, 2, 1)
-        self.gte_figure(fig, 1, 2)
+        self._methods_figure(fig, 1, 1)
+        self._lte_figure(fig, 2, 1)
+        self._gte_figure(fig, 1, 2)
 
         return fig
